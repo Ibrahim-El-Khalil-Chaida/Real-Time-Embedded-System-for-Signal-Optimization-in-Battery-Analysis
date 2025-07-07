@@ -1,0 +1,103 @@
+/* static/styles.css */
+
+/* Reset & full-height */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main container */
+.main-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Video background */
+#bgVideo {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%; min-height: 100%;
+  width: auto; height: auto;
+  z-index: -1;
+}
+
+/* Header text over video, no background */
+.header-overlay {
+  position: absolute;
+  top: 1rem; left: 2rem;
+  color: #fff;
+  z-index: 3;
+}
+.header-overlay h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+.header-overlay .supervisor,
+.header-overlay .students {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+.header-overlay .students ul {
+  margin: 0.25rem 0 0 1.5rem;
+  padding: 0;
+  list-style: disc;
+}
+
+/* VIEW MEASUREMENTS button at bottom, white & curved */
+.enter-btn {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 1rem;
+  background: #fff;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* Dashboard slides up, solid white */
+.dashboard-panel {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100vh;
+  transform: translateY(100%);
+  transition: transform 0.5s ease-in-out;
+  background: #fff;
+  z-index: 10;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HIDE MEASUREMENTS button */
+.back-btn {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 11;
+}
+
+/* Charts grid */
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 4rem 1rem 1rem;
+  box-sizing: border-box;
+  height: calc(100% - 4rem);
+}
+.chart-wrapper {
+  width: 100%;
+  height: 100%;
+}

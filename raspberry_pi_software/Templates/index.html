@@ -1,0 +1,115 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Real-Time Embedded System Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+  <div class="main-container">
+
+    <!-- Video Background -->
+    <video autoplay muted loop id="bgVideo">
+      <source src="{{ url_for('static', filename='video.mp4') }}" type="video/mp4">
+    </video>
+
+    <!-- Header Overlay -->
+    <div class="header-overlay">
+      <h1>Real-Time Embedded System for Signal Optimization in Battery Analysis</h1>
+      <p class="supervisor">Supervised by: Dr.Ahmed Yahia Kallel</p>
+      <div class="students">
+        <p>Students:</p>
+        <ul>
+          <li>Ibrahim EL Khalil Chaida</li>
+          <li>Taha Yassine Akermi </li>
+          <li>Fabian Schuh</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- View Measurements Button -->
+    <button id="viewMeasurementsBtn" class="enter-btn">VIEW MEASUREMENTS</button>
+
+    <!-- Dashboard Panel -->
+    <div id="dashboardPanel" class="dashboard-panel">
+      <button id="hideMeasurementsBtn" class="back-btn">▲ HIDE MEASUREMENTS</button>
+      <div class="charts-container">
+        {% for i in range(1,9) %}
+        <div class="chart-wrapper">
+          <canvas id="chart{{i}}"></canvas>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const POINT_INTERVAL = 100; // ms between points
+    let rawData, cursor = 0;
+    const charts = [];
+
+    // wire up buttons
+    document.getElementById('viewMeasurementsBtn').onclick = () => {
+      document.getElementById('dashboardPanel').style.transform = 'translateY(0)';
+      if (!rawData) initAndAnimate();
+    };
+    document.getElementById('hideMeasurementsBtn').onclick = () => {
+      document.getElementById('dashboardPanel').style.transform = 'translateY(100%)';
+    };
+
+    async function initAndAnimate() {
+      rawData = await fetch('/data').then(r => r.json());
+      const labels = [
+        'V(curr_measur_1)','V(curr_measur_2)','V(curr_measur_3)',
+        'V(volt_measur_1)','V(volt_measur_2)','V(volt_measur_3)',
+        'V(volt_measur_4)','Impedance (Ω)'
+      ];
+
+      for (let i = 1; i <= 8; i++) {
+        const ctx = document.getElementById(`chart${i}`).getContext('2d');
+        charts.push(new Chart(ctx, {
+          type: 'line',
+          data: { labels: [], datasets: [{
+            label: labels[i-1],
+            data: [],
+            borderColor: 'limegreen',
+            backgroundColor: 'transparent',
+            pointRadius: 2,
+            borderWidth: 2,
+            tension: 0.3,
+            fill: false
+          }]},
+          options: {
+            animation: { duration: 0 },
+            responsive: true,
+            scales: {
+              x: { title: { display: true, text: 'Sample #' }, ticks: { maxTicksLimit: 10 } },
+              y: { title: { display: true, text: labels[i-1] }, ticks: { maxTicksLimit: 5 } }
+            },
+            plugins: { legend: { display: false } }
+          }
+        }));
+      }
+
+      requestAnimationFrame(animatePoint);
+    }
+
+    function animatePoint() {
+      if (cursor >= rawData.idx.length) return;
+      for (let i = 1; i <= 8; i++) {
+        const chart = charts[i-1],
+              val   = rawData[`chan${i}`][cursor];
+        chart.data.labels.push(cursor);
+        chart.data.datasets[0].data.push(val);
+        chart.update('none');
+      }
+      cursor++;
+      setTimeout(() => requestAnimationFrame(animatePoint), POINT_INTERVAL);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!-- templates/monitor.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Measurement Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    canvas { background: #fff; border: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h1>Measurements & Impedance</h1>
+  <div class="grid">
+    <!-- seven raw channels -->
+    <canvas id="ch1"></canvas>
+    <canvas id="ch2"></canvas>
+    <canvas id="ch3"></canvas>
+    <canvas id="ch4"></canvas>
+    <canvas id="ch5"></canvas>
+    <canvas id="ch6"></canvas>
+    <canvas id="ch7"></canvas>
+    <!-- impedance -->
+    <canvas id="imp"></canvas>
+  </div>
+
+  <script>
+    // channel labels
+    const labels = [
+      'V(curr_measur_1)',
+      'V(curr_measur_2)',
+      'V(curr_measur_3)',
+      'V(volt_measur_1)',
+      'V(volt_measur_2)',
+      'V(volt_measur_3)',
+      'V(volt_measur_4)',
+      'Impedance (Ω)'
+    ];
+
+    fetch('/data')
+      .then(r => r.json())
+      .then(d => {
+        const freq = d.freq;
+        // build an array of your 8 data series
+        const series = [
+          d.chan1, d.chan2, d.chan3,
+          d.chan4, d.chan5, d.chan6,
+          d.chan7, d.imp
+        ];
+
+        series.forEach((dataArr, idx) => {
+          const ctx = document
+            .getElementById(idx < 7 ? `ch${idx+1}` : 'imp')
+            .getContext('2d');
+
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: freq,
+              datasets: [{
+                label: labels[idx],
+                data: dataArr,
+                fill: false,
+                borderWidth: 1
+              }]
+            },
+            options: {
+              scales: {
+                x: {
+                  type: 'log',
+                  title: { display: true, text: 'Frequency (Hz)' }
+                },
+                y: {
+                  title: { display: true, text: labels[idx] }
+                }
+              },
+              plugins: {
+                legend: { display: false }
+              }
+            }
+          });
+        });
+      });
+  </script>
+</body>
+</html>
